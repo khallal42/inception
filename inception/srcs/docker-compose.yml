@@ -1,0 +1,68 @@
+version: "3.8"
+
+networks:
+  my_network:
+    name: my_network
+    driver: bridge
+services:
+  mariadb:
+    build: ./mariaDB
+    image: mariadb
+    container_name: MariaDB
+    networks:
+      - my_network
+    restart: always
+    volumes:
+      - database:/var/lib/mysql
+    ports:
+      - 3306:3306
+    env_file:
+      - .env
+  
+  nginx:
+    depends_on:
+      - wordpress
+    build: ./NGINX
+    image: nginx
+    container_name: NGINX
+    networks:
+      - my_network
+    restart: always
+    volumes:
+      - wp_nginx:/var/www/html
+    ports: 
+      - 443:443
+    env_file:
+      - .env
+  
+  wordpress:
+    depends_on:
+      - mariadb
+    build: ./WordPress
+    image: wordpress
+    container_name: wordpress
+    networks:
+      - my_network
+    restart: always
+    volumes:
+      - wp_nginx:/var/www/html
+    ports: 
+      - 9000:9000
+    env_file:
+      - .env
+
+volumes:
+  wp_nginx:
+    name: wp_nginx 
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/khallal42/data/wordpress
+      o: bind
+  database:
+    name : database
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/khallal42/data/database
+      o: bind
