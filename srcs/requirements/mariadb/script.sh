@@ -1,0 +1,11 @@
+#!/bin/bash
+
+service mariadb start
+
+sleep 5
+mysql -e "CREATE DATABASE IF NOT EXISTS $MARIADB_NAME_DATABASE;"
+mysql -e "CREATE USER IF NOT EXISTS '$NAME_USER'@'%' IDENTIFIED BY '$MARIADB_PASSWORD';"
+mysql -e "GRANT ALL PRIVILEGES ON $MARIADB_NAME_DATABASE.* TO '$NAME_USER'@'%' IDENTIFIED BY '$MARIADB_PASSWORD';"
+mysql -e "FLUSH PRIVILEGES;"
+service mariadb stop
+exec mysqld_safe
